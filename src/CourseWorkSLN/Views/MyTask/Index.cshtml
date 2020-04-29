@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Personal Task";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <hr />
+    <h6>Вариант 4</h6>
+    <hr />
+
+    <p id="text"></p>
+    <div class="row align-items-center">
+        <div id="surface" class="col-md-8 vh-75">
+        </div>
+        <div class="col-md offset-1" te>
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item m-1">
+                    <a class="shadow nav-link" href="@Url.Action("SolveTask")">Выполнить рассчёты</a>
+                </li>
+                <li class="nav-item  m-1">
+                    <a class="shadow nav-link" href="#">Параллельная обработка</a>
+                </li>
+                <li class="nav-item  m-1">
+                    <a class="shadow nav-link" href="#">Сравнение результатов</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script>
+        
+        $(document).ready(function () {
+
+        });
+    </script>
+}
