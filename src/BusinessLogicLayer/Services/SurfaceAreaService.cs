@@ -11,7 +11,7 @@ namespace BusinessLogicLayer.Services
         public const double BoundHalfCoefficient = 0.5;
         public const double BoundQuarterCoefficient = 0.25;
 
-        public static object Locker { get; set; }
+        public static object Locker { get; set; } = new object();
 
         public static double F(double x, double y)
         {

@@ -1,39 +1,175 @@
-﻿@{
+﻿
+@model CourseWorkSLN.Models.SurfaceInfoViewModel
+
+@{
     ViewData["Title"] = "Personal Task";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <hr />
-    <h6>Вариант 4</h6>
-    <hr />
+    <h6>Обработка ранее заданной поверхности поверхности</h6>
+</div>
 
-    <p id="text"></p>
-    <div class="row align-items-center">
-        <div id="surface" class="col-md-8 vh-75">
-        </div>
-        <div class="col-md offset-1" te>
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item m-1">
-                    <a class="shadow nav-link" href="@Url.Action("SolveTask")">Выполнить рассчёты</a>
-                </li>
-                <li class="nav-item  m-1">
-                    <a class="shadow nav-link" href="#">Параллельная обработка</a>
-                </li>
-                <li class="nav-item  m-1">
-                    <a class="shadow nav-link" href="#">Сравнение результатов</a>
-                </li>
-            </ul>
-        </div>
+<hr />
+<div class="row text-center">
+    <div class="col-md-12">
+        <form id="infoForm" asp-controller="MyTask" asp-action="SolveTaskArea"
+              data-ajax="true"
+              data-ajax-begin="OnBegin"
+              data-ajax-failure="OnFailure"
+              data-ajax-success="OnSuccess"
+              data-ajax-method="POST">
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-row">
+                <div class="form-group col-md-8">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" readonly/>
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div id="hide" class="form-group col-md-1">
+                    <label asp-for="ThreadsCount" class="control-label"></label>
+                    <input asp-for="ThreadsCount" class="form-control" />
+                    <span asp-validation-for="ThreadsCount" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-3">
+                    <label asp-for="IsParallel" class="control-label"></label>
+                    <input asp-for="IsParallel" class="form-control" checked data-toggle="toggle"
+                           data-on="  Да     " data-off="    Нет  "
+                           data-onstyle="success" data-offstyle="danger">
+                </div>
+
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-1 offset-1">
+                    <label asp-for="XStart" class="control-label"></label>
+                    <input asp-for="XStart" class="form-control" />
+                    <span asp-validation-for="XStart" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-1">
+                    <label asp-for="XEnd" class="control-label"></label>
+                    <input asp-for="XEnd" class="form-control" />
+                    <span asp-validation-for="XEnd" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-1">
+                    <label asp-for="YStart" class="control-label"></label>
+                    <input asp-for="YStart" class="form-control" />
+                    <span asp-validation-for="YStart" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-1">
+                    <label asp-for="YEnd" class="control-label"></label>
+                    <input asp-for="YEnd" class="form-control" />
+                    <span asp-validation-for="YEnd" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-2">
+                    <label asp-for="Step" class="control-label"></label>
+                    <input asp-for="Step" class="form-control"
+                           type="range"
+                           min="1.5" max="2.0" step="0.0005" />
+                    <span asp-validation-for="Step" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4 offset-1">
+                    <label class="control-label">   </label>
+                    <input type="submit" value="Выполнить вычисления" class="btn btn-block btn-outline-dark startCalcLink" />
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
-@section scripts
-{
-    <script>
-        
-        $(document).ready(function () {
+<div class="flex-row text-center">
+    <br />
+    <hr />
 
+    <div id="areaResult" style="display:none;">
+
+    </div>
+
+    <div id="chart" class="vh-80 vw-80" style="display: none;" />
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(function () {
+            $('#IsParallel').change(function () {
+                if ($(this).prop('checked')) {
+                    $('#hide').fadeIn(500).show();
+                    return;
+                } else {
+                    $('#hide').fadeOut(330);
+                }
+            })
         });
+
+        $(document).ready(function () {
+            $("body").on("click", ".startCalcLink", function (e) {
+                $.ajax({
+                    url: "@Url.Action("SolveTaskChart")",
+                    type: "post",
+                    data: $('#infoForm').serialize(),
+                     beforeSend: function () {
+                        $('#chart').fadeOut(300);
+                    },
+                    success: function (data) {
+                        $('#chart').html('');
+
+                        let layout = {
+                            title: 'Полученная поверхность',
+                            scene: { camera: { eye: { x: -1.87, y: 0.88, z: -0.18 } } },
+                            autosize: true,
+                            margin: {
+                                l: 55,
+                                r: 65,
+                                b: 45,
+                                t: 70,
+                            }
+                        };
+                        Plotly.newPlot('chart', [{
+                        z: JSON.parse(data),
+                        type: 'surface',
+                        contours: {
+                            z: {
+                                show: true,
+                                usecolormap: true,
+                                highlightcolor: "#41f461",
+                                project: { z: true }
+                            }
+                        }
+                        }], layout);
+
+                        $('#chart').fadeIn(400).show();
+
+                    },
+                    error: function (err) {
+                        $('#chart').html(err.responseText);
+                        $('#chart').fadeIn(400).show();
+                    },
+                });
+            });
+        });
+
+
+        function OnSuccess(data) {
+            $('#areaResult').html(data);
+            $('#areaResult').fadeIn(450).show();
+        };
+
+        function OnFailure(request, error) {
+            $('#areaResult').html(request.responseText);
+            $('#areaResult').fadeIn(450).show();
+        };
+
+        function OnBegin() {
+            $('#areaResult').fadeOut(350);
+        };
+
+        $('input[type="range"]').rangeslider();
+
     </script>
 }

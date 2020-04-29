@@ -150,23 +150,6 @@
                         $('#chart').fadeIn(400).show();
                     },
                 });
-
-                @*$.ajax({
-                    url: "@Url.Action("SolveTaskArea")",
-                    type: "post",
-                    data: $('#infoForm').serialize(),
-                    beforeSend: function () {
-                        $('#areaResult').fadeOut(350);
-                    },
-                    success: function (data) {
-                        $('#areaResult').html(data);
-                        $('#areaResult').fadeIn(500).show();
-                    },
-                    error: function (err) {
-                         $('#areaResult').html(err.responseText);
-                         $('#areaResult').fadeIn(500).show();
-                    },
-                });*@
             });
         });
 

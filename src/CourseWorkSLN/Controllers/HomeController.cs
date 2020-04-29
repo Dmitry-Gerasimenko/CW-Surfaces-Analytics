@@ -14,7 +14,7 @@ namespace CourseWorkSLN.Controllers
 {
     public class HomeController : Controller
     {
-        public const double MaxStep = 2.008;
+        private const double MaxStep = 2.008;
 
         private readonly ILogger<HomeController> _logger;
 
@@ -27,8 +27,6 @@ namespace CourseWorkSLN.Controllers
         {
             return View();
         }
-
-
 
         [HttpGet]
         public async Task<ActionResult> InitData()
