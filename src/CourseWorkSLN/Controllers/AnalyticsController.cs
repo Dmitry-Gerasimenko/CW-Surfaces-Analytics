@@ -13,7 +13,7 @@ namespace CourseWorkSLN.Controllers
 {
     public class AnalyticsController : Controller
     {
-        private const double MaxStep = 2.002;
+        private const double DefStep = 0.6;
 
         public IActionResult Index()
         {
@@ -24,40 +24,11 @@ namespace CourseWorkSLN.Controllers
                 XEnd = 10,
                 YStart = -10,
                 YEnd = 10,
-                Step = 2,
+                Steps = 2000,
                 IsParallel = true,
                 ThreadsCount = 1,
             });
         }
-
-        public async Task<IActionResult> GetExactData(SurfaceInfoViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Заполните обязательные поля корректно.");
-            }
-
-            HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:5000");
-
-            var formContent = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("xstart", Convert.ToString(model.XStart)),
-                new KeyValuePair<string, string>("xend", Convert.ToString(model.XEnd)),
-                new KeyValuePair<string, string>("ystart", Convert.ToString(model.YStart)),
-                new KeyValuePair<string, string>("yend", Convert.ToString(model.YEnd)),
-                new KeyValuePair<string, string>("step", Convert.ToString(2.5 - model.Step)),
-            });
-
-            var response = await client.PostAsync("get_exact_data", formContent);
-            if (response.IsSuccessStatusCode)
-            {
-                return Content(await response.Content.ReadAsStringAsync());
-            }
-
-            return BadRequest(response.ReasonPhrase);
-        }
-
 
         [HttpPost]
         public async Task<ActionResult> SolveTaskArea(SurfaceInfoViewModel model)
@@ -90,6 +61,28 @@ namespace CourseWorkSLN.Controllers
             }
         }
 
+        private async Task<double> GetExactArea(SurfaceInfoViewModel model)
+        {
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri("http://localhost:5000");
+
+            var formContent = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("xstart", Convert.ToString(model.XStart)),
+                new KeyValuePair<string, string>("xend", Convert.ToString(model.XEnd)),
+                new KeyValuePair<string, string>("ystart", Convert.ToString(model.YStart)),
+                new KeyValuePair<string, string>("yend", Convert.ToString(model.YEnd)),
+                new KeyValuePair<string, string>("step", Convert.ToString(DefStep)),
+            });
+
+            var response = await client.PostAsync("get_exact_data", formContent);
+            if (response.IsSuccessStatusCode)
+            {
+                return Convert.ToDouble(await response.Content.ReadAsStringAsync());
+            }
+            throw new InvalidOperationException("Невозможно найти точную площадь");
+        }
+
         private AreaResultViewModel GetAreaWithoutParallel(SurfaceInfoViewModel model)
         {
             string outFileName = $"{DateTime.Now.ToString("yymmssfff")}-thread-calculations.txt";
@@ -97,8 +90,7 @@ namespace CourseWorkSLN.Controllers
             var startTime = Stopwatch.StartNew();
             double res = SurfaceAreaService.CalculateSurfaceArea(model.XStart, model.XEnd,
                                                                  model.YStart, model.YEnd,
-                                                                 MaxStep - model.Step,
-                                                                 MaxStep - model.Step,
+                                                                 model.Steps,
                                                                  outFileName);
 
             startTime.Stop();
@@ -124,8 +116,7 @@ namespace CourseWorkSLN.Controllers
                     SurfaceAreaService.CalculateSurfaceArea(
                         xnStep, xkStep,
                         model.YStart, model.YEnd,
-                        MaxStep - model.Step,
-                        MaxStep - model.Step,
+                        model.Steps /  model.ThreadsCount,
                         outFileName)));
             }
 

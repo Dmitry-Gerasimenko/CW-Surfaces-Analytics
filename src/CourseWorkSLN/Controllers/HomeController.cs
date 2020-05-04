@@ -14,7 +14,7 @@ namespace CourseWorkSLN.Controllers
 {
     public class HomeController : Controller
     {
-        private const double MaxStep = 2.008;
+        private const double DefStep = 0.7;
 
         private readonly ILogger<HomeController> _logger;
 
@@ -48,7 +48,7 @@ namespace CourseWorkSLN.Controllers
                 XEnd = 10,
                 YStart = -5,
                 YEnd = 10,
-                Step = 1.96,
+                Steps = 1000,
                 IsParallel = true,
                 ThreadsCount = 1,
             });
@@ -72,7 +72,7 @@ namespace CourseWorkSLN.Controllers
                 new KeyValuePair<string, string>("xend", Convert.ToString(model.XEnd)),
                 new KeyValuePair<string, string>("ystart", Convert.ToString(model.YStart)),
                 new KeyValuePair<string, string>("yend", Convert.ToString(model.YEnd)),
-                new KeyValuePair<string, string>("step", Convert.ToString(2.5 - model.Step)),
+                new KeyValuePair<string, string>("step", Convert.ToString(DefStep)),
             });
 
             var response = await client.PostAsync("get_data", formContent);
@@ -127,7 +127,7 @@ namespace CourseWorkSLN.Controllers
             var startTime = Stopwatch.StartNew();
             double res = SurfaceAreaService.CalculateSurfaceAreaNamed(model.XStart, model.XEnd,
                                                                       model.YStart, model.YEnd,
-                                                                      MaxStep - model.Step, MaxStep - model.Step,
+                                                                      model.Steps,
                                                                       model.Name);
 
             startTime.Stop();
@@ -151,8 +151,7 @@ namespace CourseWorkSLN.Controllers
                     SurfaceAreaService.CalculateSurfaceAreaNamed(
                         xnStep, xkStep,
                         model.YStart, model.YEnd,
-                        MaxStep - model.Step, 
-                        MaxStep - model.Step,
+                        model.Steps / model.ThreadsCount,
                         model.Name)));
             }
 

@@ -10,12 +10,18 @@ namespace BusinessLogicLayer.Services
         public const double BoundOneCoefficient = 1;
         public const double BoundHalfCoefficient = 0.5;
         public const double BoundQuarterCoefficient = 0.25;
+        public const double H = 1E-9;
 
         public static object Locker { get; set; } = new object();
 
         public static double F(double x, double y)
         {
-            return Math.Pow(x, 2) + Math.Pow(y, 2) + Math.Exp(x) + Math.Exp(y);
+            return Math.Sqrt(1 + Math.Pow(Math.Exp(x) + 2 * x, 2) + Math.Pow(Math.Exp(y) + 2 * y, 2));
+        }
+
+        public static double FNamedAnalytics(double x, double y, Expression expression)
+        {
+            return Math.Sqrt(1 + Math.Pow(FNamed_diff_x(x, y, expression), 2) + Math.Pow(FNamed_diff_y(x, y,expression), 2));
         }
 
         public static double FNamed(double x, double y, Expression expression)
@@ -26,31 +32,40 @@ namespace BusinessLogicLayer.Services
             return Convert.ToDouble(expression.Evaluate());
         }
 
+        public static double FNamed_diff_x(double x, double y, Expression expression)
+        {
+            return ( FNamed(x + H, y, expression) - FNamed(x, y, expression) ) / H;
+        }
+
+        public static double FNamed_diff_y(double x, double y, Expression expression)
+        {
+            return (FNamed(x, y + H, expression) - FNamed(x, y, expression)) / H;
+        }
+
         public static double CalculateSurfaceArea(
             double xn,
             double xk,
             double yn,
             double yk,
-            double h1,
-            double h2,
+            int n,
             string outputFileName)
         {
-            int xIter = (int)((xk - xn) / h1);
-            int yIter = (int)((yk - yn) / h2);
+            double h1 = (xk - xn) / n; // x step
+            double h2 = (yk - yn) / n; //  y step
 
             double x, y, w, sum = 0;
 
-            for (int i = 0; i <= xIter; i++)
+            for (int i = 0; i <= n; i++)
             {
                 x = xn + i * h1;
 
-                for (int j = 0; j <= yIter; j++)
+                for (int j = 0; j <= n; j++)
                 {
-                    if (i > 0 && i < xIter && j > 0 && j < yIter)
+                    if (i > 0 && i < n && j > 0 && j < n)
                     {
                         w = BoundOneCoefficient;
                     }
-                    else if ((i == 0 || i == yIter) && (j == 0 || j == xIter))
+                    else if ((i == 0 || i == n) && (j == 0 || j == n))
                     {
                         w = BoundQuarterCoefficient;
                     }
@@ -78,27 +93,26 @@ namespace BusinessLogicLayer.Services
             double xk,
             double yn,
             double yk,
-            double h1,
-            double h2, string name)
+            double n, string name)
         {
             Expression expression = new Expression(name);
 
-            int xIter = (int)((xk - xn) / h1);
-            int yIter = (int)((yk - yn) / h2);
+            double h1 = (xk - xn) / n; // x step
+            double h2 = (yk - yn) / n; //  y step
 
             double x, y, w, sum = 0;
 
-            for (int i = 0; i <= xIter; i++)
+            for (int i = 0; i <= n; i++)
             {
                 x = xn + i * h1;
 
-                for (int j = 0; j <= yIter; j++)
+                for (int j = 0; j <= n; j++)
                 {
-                    if (i > 0 && i < xIter && j > 0 && j < yIter)
+                    if (i > 0 && i < n && j > 0 && j < n)
                     {
                         w = BoundOneCoefficient;
                     }
-                    else if ((i == 0 || i == yIter) && (j == 0 || j == xIter))
+                    else if ((i == 0 || i == n) && (j == 0 || j == n))
                     {
                         w = BoundQuarterCoefficient;
                     }
@@ -108,7 +122,7 @@ namespace BusinessLogicLayer.Services
                     }
 
                     y = yn + j * h2;
-                    sum += w * FNamed(x, y, expression);
+                    sum += w * FNamedAnalytics(x, y, expression);
                 }
             }
 

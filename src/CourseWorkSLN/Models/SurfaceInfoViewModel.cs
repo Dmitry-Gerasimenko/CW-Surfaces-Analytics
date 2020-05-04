@@ -26,8 +26,8 @@ namespace CourseWorkSLN.Models
         [DisplayName("Yk")]
         public double YEnd { get; set; }
 
-        [DisplayName("Точность вычислений")]
-        public double Step { get; set; }
+        [DisplayName("Количество разбиений")]
+        public int Steps { get; set; }
 
         [DisplayName("Параллельные вычисления")]
         public bool IsParallel { get; set; }

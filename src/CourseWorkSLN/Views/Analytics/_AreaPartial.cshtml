@@ -3,11 +3,11 @@
     Layout = null;
 }
 
-@model CourseWorkSLN.Models.AreaResultViewModel
+@model AreaResultViewModel
 
 <div class="row">
     <div class="col-md-8 shadow">
-        <h6>Площадь поверхности:</h6>
+        <h6>Площадь поверхности:<small>(метод трапеций)</small></h6>
         <h5>@string.Format("{0:f3}", Model.Result)</h5>
     </div>
     <div class="col-md offset-1">
@@ -17,3 +17,14 @@
 </div>
 
 <hr />
+
+<div class="row">
+    <div class="col-md-8 shadow">
+        <h6>Точная площадь поверхности:<small>(мат. пакет)</small></h6>
+        <h5>@string.Format("{0:f3}", Model)</h5>
+    </div>
+    <div class="col-md offset-1">
+        <h6>Математический пакет</h6>
+        <h5>Python Numpy</h5>
+    </div>
+</div>
