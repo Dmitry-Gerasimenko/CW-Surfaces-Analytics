@@ -58,7 +58,6 @@ def get_exact_data():
 
     f = lambda x, y: np.sqrt(1 + f_diff_x(x)**2 + f_diff_y(y)**2)
 
-    result = integrate.dblquad(f, -10, 10, lambda x: -10, lambda x: 10)[0]
 
     xstart = request.form['xstart'];
     xend = request.form['xend'];
@@ -66,18 +65,20 @@ def get_exact_data():
     yend = request.form['yend'];
     step = request.form['step'];
 
+    result = integrate.dblquad(f, float(xstart), float(xend), lambda x: float(ystart), lambda x: float(yend))[0]
+  
     xRange = np.arange(float(xstart), float(xend), float(step));
     yRange = np.arange(float(ystart), float(yend), float(step));
     
     x, y = np.meshgrid(xRange, yRange)
     zgrid = x ** 2 + y ** 2 + np.exp(x) + np.exp(y)
 
-    fig = pylab.figure()
-    axes = Axes3D(fig)
-    axes.plot_surface(x, y, zgrid)
-    
-    pylab.show()
-
+    #TODO: do not forget to show graph after.
+    #fig = pylab.figure()
+    #axes = Axes3D(fig)
+    #axes.plot_surface(x, y, zgrid)
+    #
+    #pylab.show()
 
     return  json.dumps(result)
  

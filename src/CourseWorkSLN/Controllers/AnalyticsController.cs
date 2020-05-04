@@ -42,15 +42,39 @@ namespace CourseWorkSLN.Controllers
             {
                 if (model.IsParallel)
                 {
-                    var viewResult = GetAreaWithParallel(model);
+                    var approximateViewResult = GetAreaWithParallel(model);
+                    var exactAreaResult = await GetExactArea(model);
 
-                    return View("_AreaPartial", viewResult);
+                    var absAccuracy = Math.Abs(approximateViewResult.Result - exactAreaResult);
+                    var relAccuracy = (absAccuracy / exactAreaResult) * 100;
+
+                    var analyticsViewModel = new AnalyticsResultViewModel
+                    {
+                        RelativeAccuracy = relAccuracy,
+                        AbsoluteAccuracy = absAccuracy,
+                        ApproximateResult = approximateViewResult,
+                        ExactArea = exactAreaResult,
+                    };
+
+                    return PartialView("_AnalyticsResultPartial", analyticsViewModel);
                 }
                 else
                 {
-                    var viewResult = GetAreaWithoutParallel(model);
+                    var approximateViewResult = GetAreaWithoutParallel(model);
+                    var exactAreaResult = await GetExactArea(model);
 
-                    return View("_AreaPartial", viewResult);
+                    var absAccuracy = Math.Abs(approximateViewResult.Result - exactAreaResult);
+                    var relAccuracy = (absAccuracy / exactAreaResult) * 100;
+
+                    var analyticsViewModel = new AnalyticsResultViewModel
+                    {
+                        RelativeAccuracy = relAccuracy,
+                        AbsoluteAccuracy = absAccuracy,
+                        ApproximateResult = approximateViewResult,
+                        ExactArea = exactAreaResult,
+                    };
+
+                    return PartialView("_AnalyticsResultPartial", analyticsViewModel);
                 }
             }
             catch (Exception ex)

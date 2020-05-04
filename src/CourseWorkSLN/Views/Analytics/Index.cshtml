@@ -19,17 +19,26 @@
               data-ajax-method="POST">
 
             <div asp-validation-summary="All" class="text-danger"></div>
-            @Html.HiddenFor(x => x.ThreadsCount)
-            @Html.HiddenFor(x=>x.IsParallel)
 
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label asp-for="Name" class="control-label"></label>
-                    <input asp-for="Name" class="form-control" readonly />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+        <div class="form-row">
+            <div class="form-group col-md-8">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" readonly />
+                <span asp-validation-for="Name" class="text-danger"></span>
             </div>
+            <div id="hide" class="form-group col-md-1">
+                <label asp-for="ThreadsCount" class="control-label"></label>
+                <input asp-for="ThreadsCount" class="form-control" />
+                <span asp-validation-for="ThreadsCount" class="text-danger"></span>
+            </div>
+            <div class="form-group col-md-3">
+                <label asp-for="IsParallel" class="control-label"></label>
+                <input asp-for="IsParallel" class="form-control" checked data-toggle="toggle"
+                       data-on="  Да     " data-off="    Нет  "
+                       data-onstyle="success" data-offstyle="danger">
+            </div>
+        </div>
 
             <div class="form-row">
                 <div class="form-group col-md-1 offset-1">
@@ -86,44 +95,35 @@
     }
 
     <script>
+        
         $(document).ready(function () {
-            $("body").on("click", ".startCalcLink", function (e) {
-                $.ajax({
-                    url: "@Url.Action("GetExactData")",
-                    type: "post",
-                    data: $('#infoForm').serialize(),
-                     beforeSend: function () {
-                        $('#exactArea').fadeOut(300);
-                    },
-                    success: function (data) {
-                        $('#exactArea').html(data);
+            $('#IsParallel').change(function () {
+                if ($(this).prop('checked')) {
+                    $('#hide').fadeIn(500).show();
+                    return;
+                } else {
+                    $('#hide').fadeOut(330);
+                }
+            });
 
-                        $('#exactArea').fadeIn(400).show();
-
-                    },
-                    error: function (err) {
-                        $('#exactArea').html(err.responseText);
-                        $('#exactArea').fadeIn(400).show();
-                    },
-                });
+            $("body").on("click", ".accuracyChart", function (e) {
+                // chart for example.
             });
         });
 
         function OnSuccess(data) {
-            $('#areaResult').html(data);
-            $('#areaResult').fadeIn(450).show();
+            $('#analyticsResult').html(data);
+            $('#analyticsResult').fadeIn(450).show();
         };
 
         function OnFailure(request, error) {
-            $('#areaResult').html(request.responseText);
-            $('#areaResult').fadeIn(450).show();
+            $('#analyticsResult').html(request.responseText);
+            $('#analyticsResult').fadeIn(450).show();
         };
 
         function OnBegin() {
-            $('#areaResult').fadeOut(350);
+            $('#analyticsResult').fadeOut(350);
         };
-
-        $('input[type="range"]').rangeslider();
 
     </script>
 }
