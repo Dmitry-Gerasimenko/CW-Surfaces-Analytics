@@ -20,25 +20,24 @@
 
             <div asp-validation-summary="All" class="text-danger"></div>
 
-
-        <div class="form-row">
-            <div class="form-group col-md-8">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" readonly />
-                <span asp-validation-for="Name" class="text-danger"></span>
+            <div class="form-row">
+                <div class="form-group col-md-8">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" readonly />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div id="hide" class="form-group col-md-1">
+                    <label asp-for="ThreadsCount" class="control-label"></label>
+                    <input asp-for="ThreadsCount" class="form-control" />
+                    <span asp-validation-for="ThreadsCount" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-3">
+                    <label asp-for="IsParallel" class="control-label"></label>
+                    <input asp-for="IsParallel" class="form-control" checked data-toggle="toggle"
+                           data-on="  Да     " data-off="    Нет  "
+                           data-onstyle="success" data-offstyle="danger">
+                </div>
             </div>
-            <div id="hide" class="form-group col-md-1">
-                <label asp-for="ThreadsCount" class="control-label"></label>
-                <input asp-for="ThreadsCount" class="form-control" />
-                <span asp-validation-for="ThreadsCount" class="text-danger"></span>
-            </div>
-            <div class="form-group col-md-3">
-                <label asp-for="IsParallel" class="control-label"></label>
-                <input asp-for="IsParallel" class="form-control" checked data-toggle="toggle"
-                       data-on="  Да     " data-off="    Нет  "
-                       data-onstyle="success" data-offstyle="danger">
-            </div>
-        </div>
 
             <div class="form-row">
                 <div class="form-group col-md-1 offset-1">
@@ -95,7 +94,7 @@
     }
 
     <script>
-        
+
         $(document).ready(function () {
             $('#IsParallel').change(function () {
                 if ($(this).prop('checked')) {
@@ -106,8 +105,108 @@
                 }
             });
 
+            $("body").on("click", ".timeChart", function (e) {
+                $.ajax({
+                    url: "@Url.Action("GetTimeChart")",
+                    type: "post",
+                    data: $('#infoForm').serialize(),
+                    beforeSend: function () {
+                        $('#chart').fadeOut(300);
+                    },
+                    success: function (data) {
+                        $('#chart').html('');
+
+                        let timeArr = data.timeArr;
+                        let threadsArr = data.threadsArr;
+
+                        let trace = {
+                            x: threadsArr,
+                            y: timeArr,
+                            mode: 'lines',
+                            name: 'Time func',
+                            line: {
+                                dash: 'solid',
+                                width: 4
+                            }
+                        };
+
+                        let layout = {
+                            title: 'Зависимость времени выполнения от количества потоков',
+                            xaxis: {
+                                autorange: true
+                            },
+                            yaxis: {
+                                autorange: true
+                            },
+                            legend: {
+                                y: 0.5,
+                                traceorder: 'reversed',
+                                font: {
+                                    size: 16
+                                }
+                            }
+                        };
+
+                        Plotly.newPlot('chart', [trace], layout);
+                        $('#chart').fadeIn(400).show();
+                    },
+                    error: function (err) {
+                        $('#chart').html(err.responseText);
+                        $('#chart').fadeIn(400).show();
+                    },
+                });
+            });
+
             $("body").on("click", ".accuracyChart", function (e) {
-                // chart for example.
+                $.ajax({
+                    url: "@Url.Action("GetAccuracyChart")",
+                    type: "post",
+                    data: $('#infoForm').serialize(),
+                    beforeSend: function () {
+                        $('#chart').fadeOut(300);
+                    },
+                    success: function (data) {
+                        $('#chart').html('');
+
+                        let accuracyArr = data.accuracyArr;
+                        let threadsArr = data.threadsArr;
+
+                        let trace = {
+                            x: threadsArr,
+                            y: accuracyArr,
+                            mode: 'lines',
+                            name: 'Accuracy func',
+                            line: {
+                                dash: 'dot',
+                                width: 4
+                            }
+                        };
+
+                        let layout = {
+                            title: 'Зависимость абсолютной погрешности вычислений от количества потоков',
+                            xaxis: {
+                                autorange: true
+                            },
+                            yaxis: {
+                                autorange: true
+                            },
+                            legend: {
+                                y: 0.5,
+                                traceorder: 'reversed',
+                                font: {
+                                    size: 16
+                                }
+                            }
+                        };
+
+                        Plotly.newPlot('chart', [trace], layout);
+                        $('#chart').fadeIn(400).show();
+                    },
+                    error: function (err) {
+                        $('#chart').html(err.responseText);
+                        $('#chart').fadeIn(400).show();
+                    },
+                });
             });
         });
 
