@@ -1,0 +1,142 @@
+﻿@model CourseWorkSLN.Models.SurfaceInfoViewModel
+
+@{
+    ViewData["Title"] = "Analytics";
+}
+
+<div class="text-center">
+    <h5>Анализ результатов</h5>
+</div>
+
+<hr />
+<div class="row text-center">
+    <div class="col-md-12 text-center">
+        <form id="infoForm" asp-controller="Analytics" asp-action="SolveTaskArea"
+              data-ajax="true"
+              data-ajax-begin="OnBegin"
+              data-ajax-failure="OnFailure"
+              data-ajax-success="OnSuccess"
+              data-ajax-method="POST">
+
+            <div asp-validation-summary="All" class="text-danger"></div>
+            @Html.HiddenFor(x => x.ThreadsCount)
+            @Html.HiddenFor(x=>x.IsParallel)
+
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" readonly />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-1 offset-1">
+                    <label asp-for="XStart" class="control-label"></label>
+                    <input asp-for="XStart" class="form-control" />
+                    <span asp-validation-for="XStart" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-1">
+                    <label asp-for="XEnd" class="control-label"></label>
+                    <input asp-for="XEnd" class="form-control" />
+                    <span asp-validation-for="XEnd" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-1">
+                    <label asp-for="YStart" class="control-label"></label>
+                    <input asp-for="YStart" class="form-control" />
+                    <span asp-validation-for="YStart" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-1">
+                    <label asp-for="YEnd" class="control-label"></label>
+                    <input asp-for="YEnd" class="form-control" />
+                    <span asp-validation-for="YEnd" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-2">
+                    <label asp-for="Step" class="control-label"></label>
+                    <input asp-for="Step" class="form-control"
+                           type="range"
+                           min="1.5" max="2.0" step="0.0005" />
+                    <span asp-validation-for="Step" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-4 offset-1">
+                    <label class="control-label">   </label>
+                    <input type="submit" value="Выполнить сравнение" class="btn btn-block btn-outline-dark startCalcLink" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="flex-row text-center">
+    <br />
+    <hr />
+    <div>
+        <h2>Exact answer:</h2>
+        <div id="exactArea"/>
+    </div>
+   
+    <hr />
+    <div id="areaResult" style="display:none;">
+
+    </div>
+</div>
+<div class="flex-row text-center">
+    <br />
+    <hr />
+
+    <div id="areaResult" style="display:none;">
+
+    </div>
+
+    <div id="chart" class="vh-80 vw-80" style="display: none;" />
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $("body").on("click", ".startCalcLink", function (e) {
+                $.ajax({
+                    url: "@Url.Action("GetExactData")",
+                    type: "post",
+                    data: $('#infoForm').serialize(),
+                     beforeSend: function () {
+                        $('#exactArea').fadeOut(300);
+                    },
+                    success: function (data) {
+                        $('#exactArea').html(data);
+
+                        $('#exactArea').fadeIn(400).show();
+
+                    },
+                    error: function (err) {
+                        $('#exactArea').html(err.responseText);
+                        $('#exactArea').fadeIn(400).show();
+                    },
+                });
+            });
+        });
+
+        function OnSuccess(data) {
+            $('#areaResult').html(data);
+            $('#areaResult').fadeIn(450).show();
+        };
+
+        function OnFailure(request, error) {
+            $('#areaResult').html(request.responseText);
+            $('#areaResult').fadeIn(450).show();
+        };
+
+        function OnBegin() {
+            $('#areaResult').fadeOut(350);
+        };
+
+        $('input[type="range"]').rangeslider();
+
+    </script>
+}
