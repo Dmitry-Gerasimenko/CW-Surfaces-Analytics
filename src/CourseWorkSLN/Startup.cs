@@ -14,7 +14,7 @@ namespace CourseWorkSLN
     {
         private readonly CultureInfo[] _supportedCultures = new[]
         {
-            new CultureInfo("ru-RU"),
+            new CultureInfo("ru"),
             new CultureInfo("en"),
         };
 
@@ -29,7 +29,10 @@ namespace CourseWorkSLN
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(); // добавляем сервисы CORS
-            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            services.AddControllersWithViews()
+                .AddViewLocalization()
+                .AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

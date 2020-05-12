@@ -73,11 +73,10 @@ def get_exact_data():
     x, y = np.meshgrid(xRange, yRange)
     zgrid = x ** 2 + y ** 2 + np.exp(x) + np.exp(y)
 
-    #TODO: do not forget to show graph after.
+   
     #fig = pylab.figure()
     #axes = Axes3D(fig)
     #axes.plot_surface(x, y, zgrid)
-    #
     #pylab.show()
 
     return  json.dumps(result)

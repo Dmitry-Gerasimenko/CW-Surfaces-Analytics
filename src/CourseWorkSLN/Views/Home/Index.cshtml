@@ -1,11 +1,12 @@
 ﻿@{
-    ViewData["Title"] = "Главная";
+    ViewData["Title"] = Localizer["Main"];
 }
+@inject IViewLocalizer Localizer
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <hr />
-    <h6>Исследование методов организации распределённых вычислений: обработка и отображение поверхностей</h6>
+    <h6>@Localizer["HomeTitle"]</h6>
     <hr />
 
     <p id="text"></p>
@@ -15,13 +16,13 @@
         <div class="col-md offset-1">
             <ul class="nav nav-pills flex-column">
                 <li class="nav-item m-1">
-                    <a class="shadow nav-link" href="@Url.Action("Index", "MyTask")">Выполнить задание</a>
+                    <a class="shadow nav-link" href="@Url.Action("Index", "MyTask")">@Localizer["DoTask"]</a>
                 </li>
                 <li class="nav-item  m-1">
-                    <a class="shadow nav-link" href="@Url.Action("SolveTask")">Произвольная поверхность</a>
+                    <a class="shadow nav-link" href="@Url.Action("SolveTask")">@Localizer["AnySurface"]</a>
                 </li>
                 <li class="nav-item  m-1">
-                    <a class="shadow nav-link" href="@Url.Action("Index", "Analytics")">Сравнение результатов</a>
+                    <a class="shadow nav-link" href="@Url.Action("Index", "Analytics")">@Localizer["ResultsAnalisys"]</a>
                 </li>
             </ul>
         </div>
@@ -39,7 +40,7 @@
 
                 success: function (data) {
                     let layout = {
-                        title: 'Пример 3D поверхности',
+                        title: '@Localizer["SurfaceSample"]',
                         scene: { camera: { eye: { x: -1.17, y: -1.18, z: 1.18 } } },
                         autosize: true,
                         margin: {

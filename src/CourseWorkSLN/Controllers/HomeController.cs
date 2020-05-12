@@ -9,6 +9,8 @@ using System.Net.Http;
 using BusinessLogicLayer.Services;
 using System.Linq;
 using CourseWorkSLN.Utils;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Http;
 
 namespace CourseWorkSLN.Controllers
 {
@@ -125,6 +127,18 @@ namespace CourseWorkSLN.Controllers
         public IActionResult About()
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult SetLanguage(string culture, string returnUrl)
+        {
+            Response.Cookies.Append(
+                CookieRequestCultureProvider.DefaultCookieName,
+                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddDays(1) }
+            );
+
+            return LocalRedirect(returnUrl);
         }
 
         private AreaResultViewModel GetAreaWithoutParallel(SurfaceInfoViewModel model)
